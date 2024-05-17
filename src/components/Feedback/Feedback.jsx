@@ -1,4 +1,4 @@
-export default function Feedback({ value: { good, neutral, bad }, total, positive }) {
+export default function Feedback({ feedback: { good, neutral, bad }, total, positive }) {
     return (
         <div>
             <p>Good: {good}</p>

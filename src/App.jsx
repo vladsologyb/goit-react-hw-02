@@ -6,30 +6,25 @@ import Feedback from './components/Feedback/Feedback'
 import './App.css'
 
 function App() {
-  const [clicks, setClicks] = useState(() => {
-    const savedClicks = window.localStorage.getItem("saved-clicks");
+ const [clicks, setClicks] = useState(() => {
+    const savedClicks = window.localStorage.getItem('current-click');
+
     if (savedClicks !== null) {
-    return JSON.parse(savedClicks);
+      return JSON.parse(savedClicks);
     }
+
     return {
       good: 0,
       neutral: 0,
       bad: 0,
-    }
-  })
+    };
+  });
 
   useEffect(() => {
-    window.localStorage.setItem("saved-clicks", clicks);
+    localStorage.setItem('current-click', JSON.stringify(clicks));
   }, [clicks]);
 
-  const updateFeedback = (feedbackType) => {
-    setClicks({
-      ...clicks,
-      [feedbackType]: clicks[feedbackType] + 1,
-    });
-  };
-
-  const onReset = () => {
+  const resetClicks = () => {
     setClicks({
       good: 0,
       neutral: 0,
@@ -38,24 +33,34 @@ function App() {
   };
 
   const totalFeedback = clicks.good + clicks.neutral + clicks.bad;
- const positive = Math.round((clicks.good / totalFeedback) * 100);
 
+  const ratePositiveFeedback = Math.round((clicks.good / totalFeedback) * 100);
+
+  const updateFeedback = feedbackType => {
+    setClicks(prevFeedback => ({
+      ...prevFeedback,
+      [feedbackType]: prevFeedback[feedbackType] + 1,
+    }));
+  };
 
   return (
-    <>
+    <div >
       <Description />
       <Options
-        onUpdate={updateFeedback}
-        total={totalFeedback}
-        reset={onReset}
+        updateFeedback={updateFeedback}
+        totalFeedback={totalFeedback}
+        onReset={resetClicks}
       />
-     {totalFeedback > 0 ? (
-        <Feedback value={clicks} total={totalFeedback} positive={positive} />
-      ) : (
-        <Notification total={totalFeedback} />
+      {!totalFeedback > 0 && <Notification />}
+      {totalFeedback > 0 && (
+        <Feedback
+          feedback={clicks}
+          total={totalFeedback}
+          positive={ratePositiveFeedback}
+        />
       )}
-    </>
-  )
+    </div>
+  );
 }
 
 export default App
